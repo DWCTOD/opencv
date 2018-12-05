@@ -1,0 +1,24 @@
+import os
+import os.path
+import cv2
+import numpy as np
+
+'''
+实现批量的图片的读取并在裁剪掉无关信息后保存成制定文件名
+'''
+
+# 返回path指定的文件夹包含的文件或文件夹的名字的列表
+path = '/home/pzw/PycharmProjects/crop/net_ground'
+path1 = '/home/pzw/PycharmProjects/croped/net_ground'
+dirs = os.listdir(path)
+
+for pic in dirs:
+
+    img = cv2.imread(path+'/'+pic)
+    x, y, z = img.shape
+    cropped_image = img[round(0.12 * x):round(0.8 * x), 0:y, 0:z]
+    cropped_image = cv2.resize(cropped_image, (600,600),interpolation=cv2.INTER_LINEAR)
+
+    write_name = pic.split('.')[0]
+    cv2.imwrite(path1+'/'+write_name+'_pro.jpg', cropped_image)
+
