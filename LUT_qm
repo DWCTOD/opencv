@@ -1,0 +1,78 @@
+#-*-coding:utf-8-*-
+"""
+作者：zero
+公众号：AI算法与图像处理
+时间：2019.4.1
+使用方法：改变图片的路径选择对应方法即可；采用lut方法时需temp的参数选择模型展示效果
+"""
+import cv2
+import numpy as np
+from PIL import Image,ImageFilter
+class pic_imshow:
+    def __init__(self,path,temp='',params=12):
+        self.path=path
+        self.temp=temp
+        self.params=params      
+    # (3)利用PIL中函数实现
+    def lut_PIL(self):
+        src=Image.open(self.path)
+        im2 = src.filter(ImageFilter.BLUR)  # 模糊滤镜
+        im2.save("qm_1.jpg")
+
+        im2 = src.filter(ImageFilter.EMBOSS)  # 浮雕效果滤镜
+        im2.save("qm_2.jpg")
+
+        im2 = src.filter(ImageFilter.EDGE_ENHANCE)  # 凸显边界
+        im2.save("qm_3.jpg")
+
+        im2 = src.filter(ImageFilter.EDGE_ENHANCE_MORE)  # 加倍凸显边界
+        im2.save("qm_4.jpg")
+
+        im2 = src.filter(ImageFilter.FIND_EDGES)  # 只保留边界
+        im2.save("qm_5.jpg")
+
+        im2 = src.filter(ImageFilter.CONTOUR)  # 铅笔画效果
+        im2.save("qm_6.jpg")
+
+        im2 = src.filter(ImageFilter.SMOOTH_MORE)  # 平滑滤镜(阀值更大)
+        im2.save("qm_7.jpg")
+
+    # （2）利用opencv中的函数实现
+    def lut_opencv(self):
+        src=cv2.imread(self.path)
+        cv2.namedWindow('input',cv2.WINDOW_AUTOSIZE)
+        cv2.imshow('input',src)
+        dst=cv2.applyColorMap(src,self.temp)
+        cv2.imshow('output',dst)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()  
+    # （1）实现“流年”滤镜的效果:改变通道值的方法
+    def fleeting(self):
+        src=Image.open(self.path)
+        src.show()
+        img=np.asarray(Image.open(self.path).convert('RGB'))
+        img1=np.sqrt(img*[1.0,0.0,0.0])*self.params
+        img2=img*[0.0,1.0,1.0]
+        img=img1+img2
+        img=Image.fromarray(np.array(img).astype('uint8'))
+        img.show()
+    # （1）实现“旧电影”滤镜的效果:改变通道值的方法
+    def oldFilm(self):
+        src=Image.open(self.path)
+        src.show()
+        img=np.asarray(Image.open(self.path).convert('RGB'))
+        # r=r*0.393+g*0.769+b*0.189 g=r*0.349+g*0.686+b*0.168 b=r*0.272+g*0.534b*0.131
+        trans = np.array([[0.393,0.769,0.189],[0.349,0.686,0.168],[0.272,0.534,0.131]]).transpose()
+        # clip 超过255的颜色置为255
+        img = np.dot(img,trans).clip(max=255)               
+        img=Image.fromarray(np.array(img).astype('uint8')) 
+        img.show()
+ 
+if __name__=='__main__':
+    path='qm.jpg'
+    test=pic_imshow(path,cv2.COLORMAP_COOL)
+    # cv2.COLORMAP_COOL可以替换为 cv2.COLORMAP_AUTUMN等或者数字
+    test.lut_PIL()
+    #test.lut_opencv()
+    #test.fleeting()
+    #test.oldFilm()
